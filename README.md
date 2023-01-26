@@ -12,3 +12,9 @@ Mentor: Talha Agcayazi (talha.robotics@gmail.com)
 
 |Project Directories | Brief Description|
 |---------------| -----------------|
+|[`/data`](./data) | All project datasets should be stored and documented here. For example, if you work with Common Separated Value (.cvs) datasets, they would stored here and documented in this directory's README.md file. Similarly, if you get data from web APIs, you would document the APIs in the directory's `README.md`.
+|[`/test`](./test) | All test codes will be published from this directory. This includes Markdown files (.md), Python files (.py), HTML files (.html), and so on. The `./test` directory is the root directory of the website for out project.|
+|[`/appIntegration`](./appIntegration)| This directory contains the code files to integrate into the app.  |
+|[`/source`](./source) | All our source code will be located in this directory. |
+| .gitignore | Ignoring "non-useful" files will make it easier to work togther in our team.  |
+| LICENSE | This is a straigtforward software license that  says "You own the copyright of your code.  Others can use your code, so long as they cite that they are doing so." |
