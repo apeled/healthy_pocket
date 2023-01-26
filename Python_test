@@ -1,0 +1,33 @@
+import requests
+import json
+
+# Company symbol
+symbol = "AAPL"
+
+# API endpoint for historical stock data
+url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol={symbol}&apikey=1AOAPDZR1W9GOPS9"
+
+# Make API request
+response = requests.get(url)
+
+# Parse response as JSON
+data = json.loads(response.text)
+
+# Extract daily data
+daily_data = data["Time Series (Daily)"]
+
+# Initialize variable to track number of price gaps
+num_gaps = 0
+
+# Iterate through each day's data
+for date, prices in daily_data.items():
+    # Get the previous day's close price
+    prev_close = float(daily_data[date]["4. close"])
+    # Get the current day's open price
+    open_price = float(daily_data[date]["1. open"])
+    # Check if there is a gap between the previous day's close and current day's open
+    if prev_close != open_price:
+        num_gaps += 1
+
+# Print the number of price gaps
+print(f"The stock for {symbol} filled {num_gaps} price gaps.")
