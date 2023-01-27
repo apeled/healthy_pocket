@@ -12,7 +12,7 @@ class MainApp(App):
 
         main_layout = BoxLayout(orientation = "vertical")
         self.solution = TextInput(background_color = "red", foreground_color = "white")
-
+"""
         main_layout.add_widget(self.solution)
         buttons = [
             ["Take Measurment"]
@@ -39,8 +39,8 @@ class MainApp(App):
         return main_layout
 
     def on_button_press(self, instance):
-        current = 
-
+        current = 0
+"""
 
 if __name__ == "__main__":
     app = MainApp()

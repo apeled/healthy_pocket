@@ -1,3 +1,11 @@
+"""
+BEFORE RUNNING: SET ENVIRONMENT
+Copy and paste two commands in terminal:
+
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
+
+.venv\scripts\activate
+"""
 import cv2 as cv
 
 # Open the camera
