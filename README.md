@@ -2,6 +2,14 @@
 Contributors: Amit Peled (apeled@uw.edu), Andrew Weakley (asw916@uw.edu), Chad Orite (yorite@uw.edu), Mathew Van Ginneken (mattcvan@uw.edu)
 
 Mentor: Talha Agcayazi (talha.robotics@gmail.com)
+
+BEFORE RUNNING: SET ENVIRONMENT
+Copy and paste two commands in terminal:
+
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
+
+.venv\scripts\activate
+
 ## List of different applications that I used to try and run app
 - Git Download | [Link](https://git-scm.com/downloads)
 - Andriod Studio | [Link](https://developer.android.com/studio?gclid=Cj0KCQiA8aOeBhCWARIsANRFrQFu_-zwzf8VdaNGyJaY6M_9IX-IHZsfrDbOv02a3TTZwMjncm4qkOgaArKrEALw_wcB&gclsrc=aw.ds)
