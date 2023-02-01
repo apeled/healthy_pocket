@@ -2,9 +2,10 @@
 Contributors: Amit Peled (apeled@uw.edu), Andrew Weakley (asw916@uw.edu), Chad Orite (yorite@uw.edu), Mathew Van Ginneken (mattcvan@uw.edu)
 
 Mentor: Talha Agcayazi (talha.robotics@gmail.com)
+##
 
 BEFORE RUNNING: SET ENVIRONMENT
-Copy and paste two commands in terminal:
+Copy and paste two commands in VS Code terminal:
 
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
 
