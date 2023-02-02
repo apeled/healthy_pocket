@@ -69,5 +69,3 @@ class CameraApp(App):
 if __name__ == '__main__':
     CameraApp().run()
  """
-
- ## test 123456789
