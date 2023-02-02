@@ -1,3 +1,4 @@
+import numpy as np
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
@@ -68,4 +69,3 @@ class CameraApp(App):
 if __name__ == '__main__':
     CameraApp().run()
  """
-
