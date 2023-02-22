@@ -1,55 +1,29 @@
 import cv2
 import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
-
-
-# Luma code copied from the github found online
-def luma_component_mean(frames):
-    signal = []
-    for frame_bgr in frames:
-        img_ycrcb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2YCrCb)
-        mean_of_luma = img_ycrcb[..., 0].mean()
-        signal.append(mean_of_luma)
-
-    signal = np.array(signal)
-    # samples_to_skip = kwargs["initial_skip_seconds"] * self.sample_rate
-    # ignore first second because of auto exposure
-    # signal = signal[samples_to_skip:]
-    return signal
-
+import csv
 
 # Open the video file for reading
-cap = cv2.VideoCapture('C:\\Users\\amitp\\Documents\healthy_pocket\\test\\20230216_220710.mp4')
+cap = cv2.VideoCapture('video.mp4')
 
-# Create a list to store the video frames
-list_of_frames = []
+# Create a CSV file to store the luma values
+with open('luma_values.csv', mode='w', newline='') as csv_file:
+    writer = csv.writer(csv_file)
+    writer.writerow(['Frame', 'Luma'])
 
-# Loop through each frame of the video
-while cap.isOpened():
-    ret, frame = cap.read()
-    if not ret:
-        break
+    # Loop through each frame of the video
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
 
+        # Convert the frame to grayscale
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-    # Append the frame to the list of frames
-    list_of_frames.append(frame)
+        # Calculate the luma component of the grayscale frame
+        luma = np.mean(gray)
 
-# Release the video capture
-cap.release()
+        # Write the frame number and luma value to the CSV file
+        writer.writerow([cap.get(cv2.CAP_PROP_POS_FRAMES), luma])
 
-# Compute the luma component mean signal
-luma_signal = luma_component_mean(list_of_frames) * -1
-
-print(luma_signal)
-"""
-plt.plot(luma_signal)
-plt.show()
-# Set the title and axis labels
-plt.set_title("Extracted PPG Signals with Luma Component Mean")
-plt.set_xlabel('Frame')
-plt.set_ylabel('Signal Value')
-
-# Add a legend and save the figure
-plt.legend()
-"""
+    # Release the video capture and close the CSV file
+    cap.release()
