@@ -1,9 +1,13 @@
+import subprocess
+from moviepy.editor import VideoFileClip
 import os
 import cv2
 import numpy as np
 import csv
 import pandas as pd
 import matplotlib.pyplot as plt
+import concurrent.futures
+
 # need to add check to make sure file has not already been inputted into dataset
 
 
@@ -15,7 +19,7 @@ def luma_component_mean(frames):
         mean_of_luma = img_ycrcb[..., 0].mean()
         signal.append(mean_of_luma)
 
-    signal = np.array(signal)[240:6500] * -1
+    signal = np.array(signal)[360:3960] * -1
     return signal
 
 def process_video_file(video_file_path):
@@ -43,12 +47,12 @@ def update_master_dataset(root_dir):
     for root, dirs, files in os.walk(root_dir):
         for file in files:
             # Check if the file is an mp4 file
-            if file.endswith(".mp4"):
+            if file.endswith(".MOV") or file.endswith(".mp4"):
                 file_path = os.path.join(root, file)
                 luma_signal = process_video_file(file_path)
 
-                # Limit to 850 frames
-                luma_signal = luma_signal[240:6500]
+                # Limit to 360 to 3960 frames
+                luma_signal = luma_signal[360:3960]
 
                 # Create a new column in the results dataframe with the name of the folder + file name
                 folder_name = os.path.basename(root)
@@ -56,8 +60,7 @@ def update_master_dataset(root_dir):
                 results_df[col_name] = luma_signal
 
     # Write the results to a CSV file
-    results_df.to_csv("luma_results_full_spec.csv", index_label="Frame")
-
+    results_df.to_csv("luma_results_3_2_test.csv", index_label="Frame")
 
 def plot_from_dataset(csv_file_for_analysis, low_patient_rec, high_patient_rec):
     """Takes in the name of the csv file used for analysis, along with a low and high values for 
@@ -66,20 +69,68 @@ def plot_from_dataset(csv_file_for_analysis, low_patient_rec, high_patient_rec):
     df = pd.read_csv(csv_file_for_analysis)
 
     # plot frames 240-6500 for patient recodings in columns low_patient_rec to high_patient_rec
-    plt.plot(df.iloc[240:6500, 0], df.iloc[240:6500, low_patient_rec:high_patient_rec])
+    plt.plot(df.iloc[360:3960, 0], df.iloc[360:3960, low_patient_rec:high_patient_rec+1])
     plt.xlabel('Frame Number')
     plt.ylabel("Luma value")
     plt.title('Plot of recodings ' + str(low_patient_rec) + ' to ' + str(high_patient_rec))
     plt.show()
 
-
 # Define the root directory for searching
-root_dir = "C:\\Users\\amitp\\Documents\\healthy_pocket\\data\\luma_testing\\videos"
+root_dir = "C:\\Users\\amitp\\Documents\\healthy_pocket\\data\\luma_testing\\chad_viddy"
 
-plot_from_dataset('luma_results_full_spec.csv', 25, 50)
-# update_master_dataset(root_dir)
+#plot_from_dataset('luma_results_full_spec.csv', 1, 10)
+update_master_dataset(root_dir)
+
+""" 
+def convert_videos(directory):
+    for filename in os.listdir(directory):
+        if filename.endswith(".mov"):
+            input_path = os.path.join(directory, filename)
+            output_path = os.path.join(
+                directory, os.path.splitext(filename)[0] + ".mp4")
+            cmd = ["ffmpeg", "-i", input_path, "-c:v", "libx265", "-preset",
+                   "ultrafast", "-threads", "4", "-c:a", "copy", output_path]
+            subprocess.run(cmd) """
 
 
+""" def convert_video(input_path, output_path):
+    clip = VideoFileClip(input_path)
+    clip.write_videofile(output_path, codec="libx265", threads=4)
+    clip.close()
+
+def convert_videos(directory):
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        for filename in os.listdir(directory):
+            if filename.endswith(".MOV"):
+                input_path = os.path.join(directory, filename)
+                output_path = os.path.join(directory, os.path.splitext(filename)[0] + ".mp4")
+                executor.submit(convert_video, input_path, output_path)
+ """
+""" def convert_videos(directory):
+    for filename in os.listdir(directory):
+        if filename.endswith(".MOV"):
+            input_path = os.path.join(directory, filename)
+            output_path = os.path.join(
+                directory, os.path.splitext(filename)[0] + ".mp4")
+            clip = VideoFileClip(input_path)
+            clip.write_videofile(output_path)
+            clip.close() """
+
+""" def convert_videos(directory):
+    for filename in os.listdir(directory):
+        if filename.endswith(".mov"):
+            input_path = os.path.join(directory, filename)
+            output_directory = os.path.join(directory, "converted_videos")
+            os.makedirs(output_directory, exist_ok=True)
+            output_path = os.path.join(output_directory, os.path.splitext(filename)[0] + ".mp4")
+            clip = VideoFileClip(input_path)
+            clip.write_videofile(output_path)
+            clip.close()
+ """
+# Example usage
+directory_path = "C:\\Users\\amitp\\Documents\\healthy_pocket\\data\\luma_testing\\chad_viddy\\Finger no change to exposure"
+# convert_videos(directory_path)
+# update_master_dataset(directory_path)
 """ 
 # Define the directory to search
 root_dir = 'C:\\Users\\amitp\\Documents\\healthy_pocket\\data\\luma_testing\\videos'
