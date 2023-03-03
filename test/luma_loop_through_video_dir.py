@@ -1,12 +1,15 @@
-import subprocess
-from moviepy.editor import VideoFileClip
+
 import os
 import cv2
 import numpy as np
-import csv
 import pandas as pd
 import matplotlib.pyplot as plt
+from signal_processing import SignalPreprocessor as sig
+
 import concurrent.futures
+import csv
+from moviepy.editor import VideoFileClip
+import subprocess
 
 # need to add check to make sure file has not already been inputted into dataset
 
@@ -20,6 +23,8 @@ def luma_component_mean(frames):
         signal.append(mean_of_luma)
 
     signal = np.array(signal)[360:3960] * -1
+    signal = sig.rolling_average(signal=signal)
+    signal = sig.butter_lowpass_filter(signal=signal, low=2, filter_order=2)
     return signal
 
 def process_video_file(video_file_path):
@@ -69,17 +74,18 @@ def plot_from_dataset(csv_file_for_analysis, low_patient_rec, high_patient_rec):
     df = pd.read_csv(csv_file_for_analysis)
 
     # plot frames 240-6500 for patient recodings in columns low_patient_rec to high_patient_rec
-    plt.plot(df.iloc[360:3960, 0], df.iloc[360:3960, low_patient_rec:high_patient_rec+1])
+    plt.plot(df.loc[1:3220, 0], df.iloc[1:3220, low_patient_rec:high_patient_rec+1])
     plt.xlabel('Frame Number')
     plt.ylabel("Luma value")
-    plt.title('Plot of recodings ' + str(low_patient_rec) + ' to ' + str(high_patient_rec))
+    # plt.title('Plot of recodings ' + str(low_patient_rec) + ' to ' + str(high_patient_rec))
     plt.show()
 
-# Define the root directory for searching
-root_dir = "C:\\Users\\amitp\\Documents\\healthy_pocket\\data\\luma_testing\\chad_viddy"
 
-#plot_from_dataset('luma_results_full_spec.csv', 1, 10)
-update_master_dataset(root_dir)
+# Define the root directory for searching
+root_dir = "C:\\Users\\amitp\\Documents\\healthy_pocket\\data\\luma_testing\\drive-download-20230303T003957Z-001"
+
+plot_from_dataset('luma_results_3_2_test.csv', 1, 9)
+# update_master_dataset(root_dir)
 
 """ 
 def convert_videos(directory):
