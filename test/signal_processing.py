@@ -42,7 +42,19 @@ class SignalPreprocessor():
         b, a = butter(filter_order, normal_cutoff, btype='low', analog=False)
         y = lfilter(b, a, signal)
         return y
-    
+        
+    def butter_highpass_filter(signal, cutoff, order, **kwargs):
+        no_nan_signal = np.array(signal)
+        n_nan = 0
+        if np.any(np.isnan(signal)):
+            n_nan = signal[np.isnan(signal)].shape[0]
+            no_nan_signal = signal[~np.isnan(signal)]
+        nyq = 0.5 * 120
+        normal_cutoff = cutoff / nyq
+        b, a = butter(order, normal_cutoff, btype='high', analog=False)
+        y = filtfilt(b, a, no_nan_signal)
+        y = np.concatenate((np.full(n_nan, np.nan), y), axis=0)
+        return y
 """    
     def bandpass_bpm(self, signal, multiplier, mincut, order, **kwargs):
 

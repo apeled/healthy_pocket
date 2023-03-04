@@ -24,7 +24,8 @@ def luma_component_mean(frames):
 
     signal = np.array(signal)[360:3960] * -1
     signal = sig.rolling_average(signal=signal)
-    signal = sig.butter_lowpass_filter(signal=signal, low=2, filter_order=2)
+    #signal = sig.butter_lowpass_filter(signal=signal, low=2, filter_order=2)
+    signal = sig.butter_highpass_filter(signal=signal, cutoff=0.5, order=2)
     return signal
 
 def process_video_file(video_file_path):
@@ -61,11 +62,11 @@ def update_master_dataset(root_dir):
 
                 # Create a new column in the results dataframe with the name of the folder + file name
                 folder_name = os.path.basename(root)
-                col_name = folder_name + "_" + file
+                col_name = file
                 results_df[col_name] = luma_signal
 
     # Write the results to a CSV file
-    results_df.to_csv("luma_results_3_2_test.csv", index_label="Frame")
+    results_df.to_csv("luma_results_3_3_test_hpf.csv", index_label="Frame")
 
 def plot_from_dataset(csv_file_for_analysis, low_patient_rec, high_patient_rec):
     """Takes in the name of the csv file used for analysis, along with a low and high values for 
@@ -74,18 +75,18 @@ def plot_from_dataset(csv_file_for_analysis, low_patient_rec, high_patient_rec):
     df = pd.read_csv(csv_file_for_analysis)
 
     # plot frames 240-6500 for patient recodings in columns low_patient_rec to high_patient_rec
-    plt.plot(df.loc[1:3220, 0], df.iloc[1:3220, low_patient_rec:high_patient_rec+1])
+    plt.plot(df.iloc[1:3200, 0], df.iloc[1:3200, low_patient_rec:high_patient_rec+1])
     plt.xlabel('Frame Number')
     plt.ylabel("Luma value")
-    # plt.title('Plot of recodings ' + str(low_patient_rec) + ' to ' + str(high_patient_rec))
+    plt.title('Plot of recodings ' + str(low_patient_rec) + ' to ' + str(high_patient_rec))
     plt.show()
 
 
 # Define the root directory for searching
 root_dir = "C:\\Users\\amitp\\Documents\\healthy_pocket\\data\\luma_testing\\drive-download-20230303T003957Z-001"
 
-plot_from_dataset('luma_results_3_2_test.csv', 1, 9)
-# update_master_dataset(root_dir)
+#plot_from_dataset('luma_results_3_2_test.csv', 1, 9)
+update_master_dataset(root_dir)
 
 """ 
 def convert_videos(directory):
