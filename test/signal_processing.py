@@ -27,7 +27,7 @@ class SignalPreprocessor():
         }
 
     def rolling_average(signal):
-        window_size_seconds = 1
+        window_size_seconds = 0.5
         window_size = int(window_size_seconds * 120)
         if window_size % 2 == 0:
             window_size += 1

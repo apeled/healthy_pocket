@@ -1,15 +1,18 @@
-
+"""
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
+.venv\scripts\activate
+"""
 import os
 import cv2
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from signal_processing import SignalPreprocessor as sig
+# from signal_processing import SignalPreprocessor as sig
 
-import concurrent.futures
-import csv
-from moviepy.editor import VideoFileClip
-import subprocess
+# import concurrent.futures
+# import csv
+# from moviepy.editor import VideoFileClip
+# import subprocess
 
 # need to add check to make sure file has not already been inputted into dataset
 
@@ -22,10 +25,10 @@ def luma_component_mean(frames):
         mean_of_luma = img_ycrcb[..., 0].mean()
         signal.append(mean_of_luma)
 
-    signal = np.array(signal)[360:3960] * -1
-    signal = sig.rolling_average(signal=signal)
+    signal = np.array(signal)[360:3960]
+    #signal = sig.rolling_average(signal=signal)
     #signal = sig.butter_lowpass_filter(signal=signal, low=2, filter_order=2)
-    signal = sig.butter_highpass_filter(signal=signal, cutoff=0.5, order=2)
+    #signal = sig.butter_highpass_filter(signal=signal, cutoff=0.5, order=2)
     return signal
 
 def process_video_file(video_file_path):
@@ -45,7 +48,7 @@ def process_video_file(video_file_path):
     luma_signal = luma_component_mean(list_of_frames) * -1
     return luma_signal
 
-def update_master_dataset(root_dir):
+def update_master_dataset(root_dir, csv_filename):
     # Create an empty dataframe to store the results
     results_df = pd.DataFrame()
 
@@ -66,7 +69,7 @@ def update_master_dataset(root_dir):
                 results_df[col_name] = luma_signal
 
     # Write the results to a CSV file
-    results_df.to_csv("luma_results_3_3_test_hpf.csv", index_label="Frame")
+    results_df.to_csv(csv_filename, index_label="Frame")
 
 def plot_from_dataset(csv_file_for_analysis, low_patient_rec, high_patient_rec):
     """Takes in the name of the csv file used for analysis, along with a low and high values for 
@@ -82,11 +85,15 @@ def plot_from_dataset(csv_file_for_analysis, low_patient_rec, high_patient_rec):
     plt.show()
 
 
-# Define the root directory for searching
-root_dir = "C:\\Users\\amitp\\Documents\\healthy_pocket\\data\\luma_testing\\drive-download-20230303T003957Z-001"
 
-#plot_from_dataset('luma_results_3_2_test.csv', 1, 9)
-update_master_dataset(root_dir)
+# RUN TO LOOP THROUGH VIDEOS IN root_dir
+
+# Define the root directory for searching
+root_dir = "C:\\Users\\amitp\\Documents\\healthy_pocket\\data\\luma_testing\\drive-download-20230303T003957Z-001\\Amit\\New Folder"
+csv_filename = "edge_case_3_10_black_pants.csv"
+update_master_dataset(root_dir, csv_filename)
+
+# plot_from_dataset('luma_results_3_2_test.csv', 1, 9)
 
 """ 
 def convert_videos(directory):
@@ -135,7 +142,7 @@ def convert_videos(directory):
             clip.close()
  """
 # Example usage
-directory_path = "C:\\Users\\amitp\\Documents\\healthy_pocket\\data\\luma_testing\\chad_viddy\\Finger no change to exposure"
+# directory_path = "C:\\Users\\amitp\\Documents\\healthy_pocket\\data\\luma_testing\\chad_viddy\\Finger no change to exposure"
 # convert_videos(directory_path)
 # update_master_dataset(directory_path)
 """ 
