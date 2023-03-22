@@ -57,9 +57,9 @@ def process_video_file(video_file_path):
     
     ### TODO: If filter is disired, uncomment whichever is needed ###
 
-    # final_signal = sig.rolling_average(signal=luma_signal)
-    # final_signal = sig.butter_lowpass_filter(signal=luma_signal, low=2, filter_order=2)
-    # final_signal = sig.butter_highpass_filter(signal=luma_signal, cutoff=0.5, order=2)
+    # final_signal = sig.rolling_average(signal=final_signal)
+    # final_signal = sig.butter_lowpass_filter(signal=final_signal, low=2, filter_order=2)
+    # final_signal = sig.butter_highpass_filter(signal=final_signal, cutoff=0.5, order=2)
     
     print("The FPS of this video was: " + str(int(FPS)))
     print("Please adjust the file name and its coresponding column name in the csv, if needed.")
