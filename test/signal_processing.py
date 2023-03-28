@@ -6,7 +6,7 @@ import numpy as np
 
 import matplotlib
 
-matplotlib.use("agg")
+#matplotlib.use("agg")
 
 class SignalPreprocessor():
 

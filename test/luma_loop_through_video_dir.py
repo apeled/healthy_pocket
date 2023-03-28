@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-# from signal_processing import SignalPreprocessor as sig
+from signal_processing import SignalPreprocessor as sig
 
 # import concurrent.futures
 # import csv
@@ -19,14 +19,21 @@ import matplotlib.pyplot as plt
 
 def luma_component_mean(frames):
     """Computes the mean luma value for each frame and stores them in an array. Frames 240 to 6500"""
-    signal = []
+    #signal = []
+    signal = ()
+
+    #while len(signal) != len(frames):
+    #    img_ycrcb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2YCrCb)
+    #    mean_of_luma = img_ycrcb[..., 0].mean()
+    #    signal.append(mean_of_luma)
     for frame_bgr in frames:
         img_ycrcb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2YCrCb)
         mean_of_luma = img_ycrcb[..., 0].mean()
-        signal.append(mean_of_luma)
+        #signal.append(mean_of_luma)
+        signal = signal + (mean_of_luma,)
 
     signal = np.array(signal)[360:3960]
-    #signal = sig.rolling_average(signal=signal)
+    #signal = sig.rolling_average(signal=signal) #Done
     #signal = sig.butter_lowpass_filter(signal=signal, low=2, filter_order=2)
     #signal = sig.butter_highpass_filter(signal=signal, cutoff=0.5, order=2)
     return signal
@@ -34,14 +41,16 @@ def luma_component_mean(frames):
 def process_video_file(video_file_path):
     cap = cv2.VideoCapture(video_file_path)
 
-    list_of_frames = []
+    #list_of_frames = []
+    list_of_frames = ()
 
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             break
 
-        list_of_frames.append(frame)
+        #list_of_frames.append(frame)
+        list_of_frames = list_of_frames + (frame,)
 
     cap.release()
 
@@ -89,11 +98,14 @@ def plot_from_dataset(csv_file_for_analysis, low_patient_rec, high_patient_rec):
 # RUN TO LOOP THROUGH VIDEOS IN root_dir
 
 # Define the root directory for searching
-root_dir = "C:\\Users\\amitp\\Documents\\healthy_pocket\\data\\luma_testing\\drive-download-20230303T003957Z-001\\Amit\\New Folder"
+#root_dir = "C:\\Users\\amitp\\Documents\\healthy_pocket\\data\\luma_testing\\drive-download-20230303T003957Z-001\\Amit\\New Folder"
+root_dir = "D:\\Coding_Archive\\Capstone\\data\\luma_testing\\videos\\matt_test"
 csv_filename = "edge_case_3_10_black_pants.csv"
 update_master_dataset(root_dir, csv_filename)
 
-# plot_from_dataset('luma_results_3_2_test.csv', 1, 9)
+#plot_from_dataset('luma_results_3_2_test.csv', 1, 9)
+plot_from_dataset('edge_case_3_10_black_pants.csv', 1, 9)
+
 
 """ 
 def convert_videos(directory):
