@@ -35,10 +35,9 @@ def process_video_file(video_file_path):
 
     # Get FPS of video
     FPS = cap.get(cv2.CAP_PROP_FPS)
-
     # Create an empty list to wich the luma values will be appended to later
     luma_signal = []
-    
+
     # While the video is open, analyze it frame by frame, prefrom luma calculation, and append the frames value to luma_signal list
     with concurrent.futures.ThreadPoolExecutor() as executor:
         while cap.isOpened():
@@ -46,22 +45,25 @@ def process_video_file(video_file_path):
             if not ret:
                 break
             executor.submit(luma_component_mean, frame, luma_signal)
-            
-        
+
+
     cap.release() # release the video
 
-    # Final signal is an array that has luma values for frames between 3 and 33 seconds of recording. 
+    # Final signal is an array that has luma values for frames between 3 and 33 seconds of recording.
+    #start_recording_values = FPS*3
     start_recording_values = FPS*3
+    #start_recording_values = FPS * 0
     stop_recording_values = FPS*33
-    
+    #stop_recording_values = FPS*35
+
     final_signal = np.array(luma_signal)[int(start_recording_values):int(stop_recording_values)]
-    
+
     ### TODO: If filter is disired, uncomment whichever is needed ###
 
-    # final_signal = sig.rolling_average(signal=final_signal)
-    # final_signal = sig.butter_lowpass_filter(signal=final_signal, low=2, filter_order=2)
-    # final_signal = sig.butter_highpass_filter(signal=final_signal, cutoff=0.5, order=2)
-    
+    #final_signal = sig.rolling_average(signal=final_signal)
+    #final_signal = sig.butter_lowpass_filter(signal=final_signal, low=2, filter_order=2)
+    final_signal = sig.butter_highpass_filter(signal=final_signal, cutoff=0.5, order=2)
+
     print("The FPS of this video was: " + str(int(FPS)))
     print("Please adjust the file name and its coresponding column name in the csv, if needed.")
     return final_signal
@@ -96,13 +98,46 @@ def plot_from_dataset(csv_file_for_analysis):#, low_patient_rec=0, high_patient_
 
     # Read in the CSV file
     df = pd.read_csv(csv_file_for_analysis)
-
+    results_df = pd.DataFrame(index=["PulseOx HR", "Calc HR", "Diff"])
+    #fig, axs = plt.subplots(2)
     # plot frames 240-6500 for patient recodings in columns low_patient_rec to high_patient_rec
-    plt.plot(df.iloc[:, 0], df.iloc[:, 1])# low_patient_rec:high_patient_rec+1])
-    plt.xlabel('Frame Number')
-    plt.ylabel("Luma value")
-    # plt.title('Plot of recodings ' + str(low_patient_rec) + ' to ' + str(high_patient_rec))
-    plt.show()
+    #plt.plot(df.iloc[:, 0], df.iloc[:, 1])# low_patient_rec:high_patient_rec+1])
+    for i in range(1,df.shape[1]):
+        fig, axs = plt.subplots(2)
+        data = df.iloc[:, i] - np.mean(df.iloc[:, i])
+        data2 = data.append(pd.Series([0]*7200))
+        data_len = len(data2)
+        frequencies = np.fft.fft(data2)
+        frequencies = np.abs(frequencies)/data_len
+        freq = np.fft.fftfreq((data_len), d=0.0083333) * 60
+        calcHR = abs(freq[frequencies[0:100].argmax()])
+        measuredHR = int(df.columns[i].split("_")[-1].split(".")[0].split("HR")[1])
+        dif = measuredHR - calcHR
+        results_df[df.columns[i]] = pd.Series([measuredHR, calcHR, dif], index=["PulseOx HR", "Calc HR", "Diff"])
+        print("The HR measured with a Pulse OX was " + str(measuredHR) + " while the HR calculated was " + str(calcHR) + " with a difference of " + str(dif))
+        axs[0].plot(df.iloc[:, 0] / 120, data)
+        axs[1].plot(freq, frequencies)
+        #plt.plot(freq, frequencies)
+        axs[0].set_xlabel('Time (s)')
+        axs[0].set_ylabel("Luma value")
+        axs[1].set_xlabel('Heart Rate (BPM)')
+        axs[1].set_ylabel("Energy")
+        #plt.title('Plot of recodings ' + str(low_patient_rec) + ' to ' + str(high_patient_rec))
+        plt.show()
+    results_df.to_csv("Heart Rate Value.csv", index_label="Entry")
+    #data = df.iloc[:, 1] - np.mean(df.iloc[:, 1])
+    #frequencies = np.fft.fft(data)
+    #frequencies = np.abs(frequencies)/len(df.iloc[:, 1])
+    #freq = np.fft.fftfreq(len(df.iloc[:, 1]), d=0.0083333) * 60
+    #axs[0].plot(df.iloc[:, 0] / 120, data)
+    #axs[1].plot(freq, frequencies)
+    ##plt.plot(freq, frequencies)
+    #axs[0].set_xlabel('Time (s)')
+    #axs[0].set_ylabel("Luma value")
+    #axs[1].set_xlabel('Heart Rate (BPM)')
+    #axs[1].set_ylabel("Energy")
+    #plt.title('Plot of recodings ' + str(low_patient_rec) + ' to ' + str(high_patient_rec))
+    #plt.show()
 
 
 start_time = time.time()
