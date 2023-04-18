@@ -99,25 +99,45 @@ def plot_from_dataset(csv_file_for_analysis):#, low_patient_rec=0, high_patient_
     # Read in the CSV file
     df = pd.read_csv(csv_file_for_analysis)
     results_df = pd.DataFrame(index=["PulseOx HR", "Calc HR", "Diff"])
+    # results_df = pd.DataFrame(index=["PulseOx HR", "Calc HR1", "Calc HR2", "Calc HR3", "Diff1", "Diff2", "Diff3"])
     #fig, axs = plt.subplots(2)
     # plot frames 240-6500 for patient recodings in columns low_patient_rec to high_patient_rec
     #plt.plot(df.iloc[:, 0], df.iloc[:, 1])# low_patient_rec:high_patient_rec+1])
     for i in range(1,df.shape[1]):
         fig, axs = plt.subplots(2)
         data = df.iloc[:, i] - np.mean(df.iloc[:, i])
-        data2 = data.append(pd.Series([0]*7200))
-        data_len = len(data2)
-        frequencies = np.fft.fft(data2)
+        # data1 = data[0:1200]
+        # data2 = data[1200:2400]
+        # data3 = data[2400:3600]
+        # data1 = data1.append(pd.Series([0]*14000))
+        # data2 = data2.append(pd.Series([0]*14000))
+        # data3 = data3.append(pd.Series([0]*14000))
+        #data2 = data.append(pd.Series([0]*14000))
+        data_len = len(data)
+        frequencies = np.fft.fft(data)
+        # frequencies1 = np.fft.fft(data1)
+        # frequencies2 = np.fft.fft(data2)
+        # frequencies3 = np.fft.fft(data3)
         frequencies = np.abs(frequencies)/data_len
+        # frequencies1 = np.abs(frequencies1)/data_len
+        # frequencies2 = np.abs(frequencies2)/data_len
+        # frequencies3 = np.abs(frequencies3)/data_len
         freq = np.fft.fftfreq((data_len), d=0.0083333) * 60
-        calcHR = abs(freq[frequencies[0:100].argmax()])
+        calcHR = abs(freq[frequencies[0:200].argmax()])
+        # calcHR1 = abs(freq[frequencies1[0:200].argmax()])
+        # calcHR2 = abs(freq[frequencies2[0:200].argmax()])
+        # calcHR3 = abs(freq[frequencies3[0:200].argmax()])
         measuredHR = int(df.columns[i].split("_")[-1].split(".")[0].split("HR")[1])
         dif = measuredHR - calcHR
+        # dif1 = measuredHR - calcHR1
+        # dif2 = measuredHR - calcHR2
+        # dif3 = measuredHR - calcHR3
         results_df[df.columns[i]] = pd.Series([measuredHR, calcHR, dif], index=["PulseOx HR", "Calc HR", "Diff"])
+        # results_df[df.columns[i]] = pd.Series([measuredHR, calcHR1, calcHR2, calcHR3, dif1, dif2, dif3], index=["PulseOx HR", "Calc HR1", "Calc HR2", "Calc HR3", "Diff1", "Diff2", "Diff3"])
         print("The HR measured with a Pulse OX was " + str(measuredHR) + " while the HR calculated was " + str(calcHR) + " with a difference of " + str(dif))
         axs[0].plot(df.iloc[:, 0] / 120, data)
         axs[1].plot(freq, frequencies)
-        #plt.plot(freq, frequencies)
+        plt.plot(freq, frequencies)
         axs[0].set_xlabel('Time (s)')
         axs[0].set_ylabel("Luma value")
         axs[1].set_xlabel('Heart Rate (BPM)')
