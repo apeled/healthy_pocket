@@ -41,6 +41,7 @@ dependencies:
   fluttertoast: ^8.2.1
   video_player: ^2.6.1
   permission_handler: ^10.2.0
+  xfile: ^1.1.0
 
 dev_dependencies:
   flutter_test:
