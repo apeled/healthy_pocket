@@ -2,11 +2,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'dart:async';
 import 'home_screen.dart';
 import 'profile_screen.dart';
-
-
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:gallery_saver/gallery_saver.dart';
 
 List<CameraDescription> cameras = [];
 
@@ -23,7 +24,7 @@ class MyApp extends StatelessWidget {
       title: 'My App',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.lightBlue,
+        primarySwatch: Colors.blueGrey,
       ),
       home: BaseScreen(),
     );
@@ -38,29 +39,22 @@ class BaseScreen extends StatefulWidget {
 class _BaseScreenState extends State<BaseScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _screens = [HomeScreen(), CameraPage(), ProfileScreen()];
+  final List<Widget> _screens = [ HomeScreen(), CameraPage(), ProfileScreen()];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: _screens[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.videocam),
-            label: 'Record',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
+      bottomNavigationBar: CurvedNavigationBar(
+        backgroundColor: Colors.transparent,
+        color: Colors.blueGrey,
+        height: 60.0,
+        items: <Widget>[
+          Icon(Icons.home, size: 30),
+          Icon(Icons.videocam, size: 30),
+          Icon(Icons.person, size: 30),
         ],
-        currentIndex: _currentIndex,
-        selectedItemColor: Colors.blue,
+        index: _currentIndex,
         onTap: (index) {
           setState(() {
             _currentIndex = index;
@@ -80,7 +74,7 @@ class CameraPage extends StatefulWidget {
 
 class _CameraPageState extends State<CameraPage> {
   late CameraController _controller;
-  int _countdownSeconds = 10;
+  int _countdownSeconds = 36;
   bool _recording = false;
 
   @override
@@ -88,7 +82,7 @@ class _CameraPageState extends State<CameraPage> {
     super.initState();
     _controller = CameraController(
       cameras[0],
-      ResolutionPreset.medium,
+      ResolutionPreset.low,
     );
     _controller.initialize().then((_) {
       if (!mounted) {
@@ -138,24 +132,27 @@ class _CameraPageState extends State<CameraPage> {
       });
       await _controller.setFlashMode(FlashMode.torch);
       await _controller.setExposureOffset(-2.0);
+      await _controller.setZoomLevel(1);
+      await _controller.setExposureMode(ExposureMode.locked);
       await _controller.startVideoRecording();
       await _startCountdown();
       final xFile = await _controller.stopVideoRecording();
       await _controller.setFlashMode(FlashMode.off);
       _showCompletedMessage(context);
+      await _saveVideo(xFile.path);
       await _uploadVideo(xFile.path);
     } catch (e) {
       print('Failed to record video: $e');
     } finally {
       setState(() {
         _recording = false;
-        _countdownSeconds = 10;
+        _countdownSeconds = 36;
       });
     }
   }
 
   Future<void> _startCountdown() async {
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 36; i++) {
       await Future.delayed(const Duration(seconds: 1));
       setState(() {
         _countdownSeconds--;
@@ -181,7 +178,7 @@ class _CameraPageState extends State<CameraPage> {
 
   Future<void> _uploadVideo(String path) async {
     final file = File(path);
-    final url = Uri.parse('http://10.19.9.19:5000');
+    final url = Uri.parse('http://127.0.0.1:5000/uploadvideo');
     final request = http.MultipartRequest('POST', url);
     final videoStream = http.ByteStream(file.openRead());
     final videoLength = await file.length();
@@ -189,7 +186,7 @@ class _CameraPageState extends State<CameraPage> {
       'video',
       videoStream,
       videoLength,
-      filename: file.path.split('/').last,
+      filename: file.path,
     );
     request.files.add(videoMultipart);
     print(file);
@@ -200,4 +197,9 @@ class _CameraPageState extends State<CameraPage> {
       print('Failed to upload video.');
     }
   }
+
+  Future<void> _saveVideo(String path) async {
+    GallerySaver.saveVideo(path);
+  }
+
 }

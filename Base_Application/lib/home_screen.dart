@@ -9,8 +9,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String _latestMeasurement = '0.0';
-  double _averageMeasurement = 78;
+  String _latestMeasurement = '75';
+  int _averageMeasurement = 78;
 
   @override
   void initState() {
@@ -31,7 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<double> getAverageMeasurement() async {
+  Future<int> getAverageMeasurement() async {
     final response = await http.get(Uri.parse('https://your-backend-api-url.com/average-measurement'));
 
     if (response.statusCode == 200) {
@@ -69,36 +69,87 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home'),
+        title: Text('Home', style: TextStyle(fontWeight: FontWeight.bold)),
+        centerTitle: true,
+        elevation: 0, // remove shadow
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Container(
-            height: 200,
-            child: SfCartesianChart(
-              // Add your chart data and configuration here
-            ),
+      body: Center(
+        child: SingleChildScrollView( // add scroll view
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Container(
+                height: 300,
+                child: SfCartesianChart(
+                  // Add your chart data and configuration here
+                ),
+              ),
+              SizedBox(height: 32),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Column(
+                    children: [
+                      Icon(Icons.watch_later_outlined, size: 60),
+                      SizedBox(height: 16),
+                      Text('Latest', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      SizedBox(height: 8),
+                      Container(
+                        width: 120,
+                        padding: EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: Offset(0, 2), // add offset for shadow
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Text('$_latestMeasurement', style: TextStyle(fontSize: 24)),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Icon(Icons.analytics_outlined, size: 60),
+                      SizedBox(height: 16),
+                      Text('Average', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      SizedBox(height: 8),
+                      Container(
+                        width: 120,
+                        padding: EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: Offset(0, 2), // add offset for shadow
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Text('$_averageMeasurement', style: TextStyle(fontSize: 24)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
           ),
-          SizedBox(height: 16),
-          Container(
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              border: Border.all(width: 1),
-            ),
-            child: Text('Latest measurement: $_latestMeasurement'),
-          ),
-          SizedBox(height: 16),
-          Container(
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              border: Border.all(width: 1),
-            ),
-            child: Text('Average measurement: $_averageMeasurement'),
-          ),
-        ],
+        ),
       ),
     );
   }
+
+
 }
